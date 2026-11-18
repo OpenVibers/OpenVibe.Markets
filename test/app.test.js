@@ -51,6 +51,7 @@ const OFFERS = [
         assert.match(r.text, /Every marketplace, one search/);
         assert.match(r.text, /<form class="mk-search" method="get" action="\/search"/);
         assert.match(r.text, /Facebook Marketplace/);
+        assert.match(r.text, /data-ov-trending="own"/, 'a product search keeps its own examples, never the page\'s headings');
         assert.match(r.headers.get('cache-control'), /public/);
 
         r = await get('/search?q=headphones');
@@ -60,6 +61,8 @@ const OFFERS = [
         assert.match(r.text, /\$149\.99<\/b><s>\$199\.99<\/s><small>as of 3 hours ago<\/small>/, 'a price with its time and the price before');
         assert.match(r.text, /as of Nov 10, 2026/);
         assert.match(r.text, /price not stated/);
+        assert.match(r.text, /<li class="mk-card mk-card--text">/, 'a deal without a picture has no empty square');
+        assert.match(r.text, /<img class="mk-card-img" src="https:\/\/img\.example\/nc\.jpg"/);
         assert.match(r.text, /Shop Example · OpenVibe Deals/);
         assert.match(r.text, /Refurb Co · OpenVibe Deals · refurbished/);
         assert.match(r.text, /href="https:\/\/openvibe\.finance\/ahead\?cost=149\.99">Can I afford it\?/);

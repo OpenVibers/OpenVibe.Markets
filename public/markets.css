@@ -47,3 +47,11 @@ html[data-ov-motion="off"] .mk-elsewhere a, html[data-ov-motion="off"] .mk-btn {
     .mk-card-img { width: 56px; height: 56px; }
     .mk-card-price { grid-column: 2; justify-items: start; text-align: left; grid-auto-flow: column; justify-content: start; align-items: baseline; gap: 8px; }
 }
+/* A card without a picture: the words and the price only (Deals' feed often has none). */
+.mk-card--text { grid-template-columns: minmax(0, 1fr) auto; }
+.mk-afford { display: inline-flex; align-items: center; min-height: 32px; }
+@media (max-width: 520px) {
+    .mk-card--text { grid-template-columns: minmax(0, 1fr); }
+    .mk-card--text .mk-card-price { grid-column: 1; }
+    .mk-afford { min-height: 44px; padding: 0 2px; }
+}
