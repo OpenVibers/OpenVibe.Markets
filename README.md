@@ -37,3 +37,7 @@ Production: `/opt/openvibe.markets`, unit `openvibe-markets.service`, env `/etc/
 `deploy/nginx/openvibe.markets.conf`; deployed with `ovhost deploy markets`.
 
 License: AGPL-3.0-only.
+
+<!-- versions:start -->
+- openvibe-shared: v4.316.0
+<!-- versions:end -->
