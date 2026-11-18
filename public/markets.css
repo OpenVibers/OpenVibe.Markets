@@ -55,3 +55,15 @@ html[data-ov-motion="off"] .mk-elsewhere a, html[data-ov-motion="off"] .mk-btn {
     .mk-card--text .mk-card-price { grid-column: 1; }
     .mk-afford { min-height: 44px; padding: 0 2px; }
 }
+/* Search by photo (v0.2). */
+.mk-photo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 10px 0 0; }
+.mk-photo-btn { position: relative; gap: 8px; }
+.mk-photo-btn input { inset: 0; }
+.mk-photo-said { color: var(--text-secondary, #9aa4b2); font-size: 14px; }
+.mk-photo.is-busy .mk-photo-btn { opacity: .6; pointer-events: none; }
+.mk-photo.is-busy .mk-photo-said { color: var(--text, #e8ecf3); animation: mk-pulse 1.2s ease-in-out infinite; }
+html[data-ov-motion="off"] .mk-photo.is-busy .mk-photo-said { animation: none; }
+@keyframes mk-pulse { 50% { opacity: .55; } }
+.mk-error { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--danger, #b91c1c); color: var(--danger, #fca5a5); }
+.mk-from-photo { margin: 8px 0 0; color: var(--text-secondary, #9aa4b2); }
+.mk-from-photo b { color: var(--text, #e8ecf3); }

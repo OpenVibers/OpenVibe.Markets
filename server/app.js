@@ -17,7 +17,22 @@ const { linksFor } = require('./elsewhere');
 
 const clean = (q) => String(q || '').replace(/\s+/g, ' ').trim().slice(0, 100);
 
-function createApp({ deals, now = () => Date.now() }) {
+/** At most `max` in a sliding window, per key (and one key for all): search by photo costs a model call. */
+function limiter(max, windowMs) {
+    const seen = new Map();
+    return (key, t) => {
+        const list = (seen.get(key) || []).filter((x) => t - x < windowMs);
+        if (list.length >= max) { seen.set(key, list); return false; }
+        list.push(t);
+        seen.set(key, list);
+        if (seen.size > 20000) seen.delete(seen.keys().next().value);
+        return true;
+    };
+}
+
+function createApp({ deals, vision = null, now = () => Date.now(), photoLimits = { perHour: 10, perDay: 300 } }) {
+    const perAddress = limiter(photoLimits.perHour, 3600e3);
+    const perDay = limiter(photoLimits.perDay, 24 * 3600e3);
     const app = express();
     app.disable('x-powered-by');
     app.set('trust proxy', 'loopback');
@@ -49,13 +64,26 @@ function createApp({ deals, now = () => Date.now() }) {
     app.get('/', handle(async (req, res) => {
         const q = clean(req.query.q);
         if (q) return res.redirect(302, `/search?q=${encodeURIComponent(q)}`);
-        res.set('Cache-Control', 'public, max-age=300').send(v.home());
+        res.set('Cache-Control', 'public, max-age=300').send(v.home({ photo: Boolean(vision && vision.ready) }));
     }));
     app.get('/search', handle(async (req, res) => {
         const q = clean(req.query.q);
         if (!q) return res.redirect(302, '/');
         const out = await find(q);
-        res.set({ 'Cache-Control': 'public, max-age=60', 'X-Robots-Tag': 'noindex, follow' }).send(v.results({ q, deals: out.deals, links: out.elsewhere, now: now() }));
+        res.set({ 'Cache-Control': 'public, max-age=60', 'X-Robots-Tag': 'noindex, follow' }).send(v.results({ q, deals: out.deals, links: out.elsewhere, now: now(), fromPhoto: req.query.from === 'photo' }));
+    }));
+    // Search by photo (v0.2): Vision names it, Markets searches the words. Nothing of the photo is kept here.
+    app.post('/photo', express.urlencoded({ extended: false, limit: '3mb' }), handle(async (req, res) => {
+        res.set('Cache-Control', 'no-store');
+        const site = req.get('sec-fetch-site');
+        if (site && site !== 'same-origin') return res.status(403).send(v.home({ photo: true, error: 'A photo search must come from openvibe.markets itself.' }));
+        if (!vision || !vision.ready) return res.status(503).send(v.home({ error: 'Search by photo is not set up here yet.' }));
+        const t = now();
+        if (!perAddress(`ip:${req.ip}`, t)) return res.status(429).send(v.home({ photo: true, error: 'That is ten photos this hour from here. Type the name instead, or try again later.' }));
+        if (!perDay('all', t)) return res.status(429).send(v.home({ photo: true, error: 'Search by photo has had its fill for today. Type the name instead.' }));
+        const out = await vision.name(String(req.body.image || ''));
+        if (!out.ok) return res.status(422).send(v.home({ photo: true, error: out.error }));
+        res.redirect(303, `/search?q=${encodeURIComponent(out.query)}&from=photo`);
     }));
     app.get('/api/v1/search', handle(async (req, res) => {
         const q = clean(req.query.q);
