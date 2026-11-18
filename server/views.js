@@ -87,7 +87,8 @@ function results({ q, deals, links, now = Date.now(), fromPhoto = false }) {
     return page({
         title: `${q}: every marketplace`, path: `/search?q=${encodeURIComponent(q)}`, robots: 'noindex, follow', body: `
 <header class="mk-head">${searchForm(q)}${fromPhoto ? `<p class="mk-from-photo">From your photo: <b>${esc(q)}</b>. Not quite it? Change the words above.</p>` : ''}</header>
-<section class="mk-sec" aria-labelledby="mk-deals-h"><h2 id="mk-deals-h">Deals</h2>${found}</section>
+<section class="mk-sec" aria-labelledby="mk-deals-h"><h2 id="mk-deals-h">Deals</h2>${found}
+<p class="mk-watch"><a href="https://openvibe.deals/watches?query=${encodeURIComponent(q)}">Alert me about new deals for “${esc(q)}”</a> <small>on OpenVibe Deals, when you are signed in</small></p></section>
 <section class="mk-sec" aria-labelledby="mk-else-h"><h2 id="mk-else-h">Search it on</h2>
 <ul class="mk-elsewhere">${links.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(l.name)}</b><small>${esc(l.kind)}</small></a></li>`).join('')}</ul>
 <p class="mk-note">These open each marketplace's own search with your words in it. Markets does not fetch from them or know what you do there; as a permitted feed comes for one, its listings join the results above.</p></section>` });
