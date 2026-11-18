@@ -53,6 +53,7 @@ const OFFERS = [
         assert.match(r.text, /Facebook Marketplace/);
         assert.match(r.text, /data-ov-trending="own"/, 'a product search keeps its own examples, never the page\'s headings');
         assert.match(r.headers.get('cache-control'), /public/);
+        assert.match(r.text, /href="\/markets\.css\?v=[0-9a-f]{10}"/, 'our stylesheet by its content: a release is a new address');
 
         r = await get('/search?q=headphones');
         assert.strictEqual(r.status, 200);
