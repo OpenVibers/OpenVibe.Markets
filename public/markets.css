@@ -67,3 +67,6 @@ html[data-ov-motion="off"] .mk-photo.is-busy .mk-photo-said { animation: none; }
 .mk-error { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--danger, #b91c1c); color: var(--danger, #fca5a5); }
 .mk-from-photo { margin: 8px 0 0; color: var(--text-secondary, #9aa4b2); }
 .mk-from-photo b { color: var(--text, #e8ecf3); }
+.mk-watch { margin: 10px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.mk-watch a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; color: var(--accent, #5b8cff); }
+.mk-watch small { color: var(--text-secondary, #9aa4b2); }

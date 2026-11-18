@@ -70,6 +70,7 @@ const OFFERS = [
         assert.doesNotMatch(r.text, /javascript:alert/, 'only https links');
         assert.match(r.text, /<a href="https:\/\/www\.ebay\.com\/sch\/i\.html\?_nkw=headphones" target="_blank" rel="noopener noreferrer">/);
         assert.strictEqual(asked.pop(), '/api/v1/search?q=headphones&limit=24');
+        assert.match(r.text, /href="https:\/\/openvibe\.deals\/watches\?query=headphones">Alert me about new deals for “headphones”/, 'alerts are Deals\' watches');
 
         r = await get('/search?q=a%20sofa');
         assert.match(r.text, /No deal on OpenVibe Deals matches these words yet/);
