@@ -34,7 +34,7 @@ function page({ title, body, path = '/', description = 'Every marketplace, one s
 }
 
 const searchForm = (q = '') => `<form class="mk-search" method="get" action="/search" role="search">
-<label class="mk-search-box"><span class="mk-sr">What are you looking for?</span><input type="search" name="q" value="${esc(q)}" placeholder="Headphones, a sofa, a used road bike…" maxlength="100" autocomplete="off" required></label>
+<label class="mk-search-box"><span class="mk-sr">What are you looking for?</span><input type="search" name="q" value="${esc(q)}" placeholder="Headphones, a sofa, a used road bike…" maxlength="100" autocomplete="off" required data-ov-trending="own"></label>
 <button class="mk-btn mk-btn--primary" type="submit">Search</button></form>`;
 
 function home() {
@@ -52,7 +52,8 @@ ${searchForm()}</section>
 }
 
 function results({ q, deals, links, now = Date.now() }) {
-    const card = (r) => `<li class="mk-card">${r.image ? `<img class="mk-card-img" src="${esc(r.image)}" alt="" loading="lazy" width="72" height="72">` : '<span class="mk-card-img mk-card-img--none" aria-hidden="true"></span>'}
+    // A deal without a picture takes the whole width: no empty square.
+    const card = (r) => `<li class="mk-card${r.image ? '' : ' mk-card--text'}">${r.image ? `<img class="mk-card-img" src="${esc(r.image)}" alt="" loading="lazy" width="72" height="72">` : ''}
 <span class="mk-card-body"><a class="mk-card-title" href="${esc(r.url)}">${esc(r.title)}</a>
 <small>${esc(r.store || 'A store')} · ${esc(r.source)}${r.condition && r.condition !== 'new' ? ` · ${esc(r.condition)}` : ''}</small></span>
 <span class="mk-card-price">${r.price != null ? `<b>${esc(money(r.price, r.currency || 'USD'))}</b>${r.was != null && r.was > r.price ? `<s>${esc(money(r.was, r.currency || 'USD'))}</s>` : ''}<small>${esc(asOf(r.observed_at, now))}</small>
