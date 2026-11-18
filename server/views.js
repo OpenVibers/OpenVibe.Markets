@@ -1,0 +1,73 @@
+'use strict';
+/**
+ * Markets' pages, server-rendered in the network's shell (openvibe-shared/shell, kit.css) with markets.css. Every value
+ * that reaches markup goes through esc(). The search works without script.
+ */
+const shell = require('openvibe-shared/shell');
+const serve = require('openvibe-shared/serve');
+const { PLACES } = require('./elsewhere');
+
+const SITE = 'https://openvibe.markets';
+const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = (n, currency = 'USD') => {
+    try { return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(n); } catch { return `${Number(n).toFixed(2)} ${currency}`; }
+};
+/** "as of 3 hours ago": a price is an observation, never "now". */
+function asOf(iso, now = Date.now()) {
+    const t = Date.parse(iso || '');
+    if (!Number.isFinite(t)) return 'time not stated';
+    const m = Math.max(0, Math.round((now - t) / 60000));
+    if (m < 60) return `as of ${m <= 1 ? 'a minute' : `${m} minutes`} ago`;
+    const h = Math.round(m / 60);
+    if (h < 48) return `as of ${h} hour${h === 1 ? '' : 's'} ago`;
+    return `as of ${new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}`;
+}
+
+function page({ title, body, path = '/', description = 'Every marketplace, one search: new, used, refurbished and local, with every price shown as of its time.', robots = 'index, follow' }) {
+    return shell.page({
+        name: 'OpenVibe.Markets', siteName: 'OpenVibe.Markets', title, description, canonical: `${SITE}${path}`, robots,
+        navbar: { service: 'markets', apiBase: 'https://openvibe.network', links: [{ label: 'Search', href: '/' }, { label: 'Deals', href: 'https://openvibe.deals/' }] },
+        footer: { service: 'markets', variant: 'full', mount: '#ov-footer' },
+        head: `<link rel="stylesheet" href="${serve.url('kit.css')}"><link rel="stylesheet" href="/markets.css">`,
+        body: `<div id="navbar-mount"></div><main id="main" class="ovk-page mk">${body}</main>`,
+    });
+}
+
+const searchForm = (q = '') => `<form class="mk-search" method="get" action="/search" role="search">
+<label class="mk-search-box"><span class="mk-sr">What are you looking for?</span><input type="search" name="q" value="${esc(q)}" placeholder="Headphones, a sofa, a used road bike…" maxlength="100" autocomplete="off" required></label>
+<button class="mk-btn mk-btn--primary" type="submit">Search</button></form>`;
+
+function home() {
+    return page({
+        title: 'Every marketplace, one search', body: `
+<section class="mk-hero"><h1>Every marketplace, one search</h1>
+<p class="mk-lede">New, used, refurbished and local. Deals the community found, with every price shown as of when it was seen, and the big marketplaces one tap away with your search already in.</p>
+${searchForm()}</section>
+<section class="mk-sec"><h2>Where it looks</h2><ul class="mk-places">${PLACES.map((p) => `<li><b>${esc(p.name)}</b><small>${esc(p.kind)}</small></li>`).join('')}</ul></section>
+<ul class="mk-promises">
+<li><b>Neutral.</b> A commission never raises a result. Every result says where it is from and when its price was seen.</li>
+<li><b>A price is an observation.</b> It is shown as of its time, never as "now".</li>
+<li><b>Nothing about you.</b> Searching needs no account, and your words are not kept.</li>
+</ul>` });
+}
+
+function results({ q, deals, links, now = Date.now() }) {
+    const card = (r) => `<li class="mk-card">${r.image ? `<img class="mk-card-img" src="${esc(r.image)}" alt="" loading="lazy" width="72" height="72">` : '<span class="mk-card-img mk-card-img--none" aria-hidden="true"></span>'}
+<span class="mk-card-body"><a class="mk-card-title" href="${esc(r.url)}">${esc(r.title)}</a>
+<small>${esc(r.store || 'A store')} · ${esc(r.source)}${r.condition && r.condition !== 'new' ? ` · ${esc(r.condition)}` : ''}</small></span>
+<span class="mk-card-price">${r.price != null ? `<b>${esc(money(r.price, r.currency || 'USD'))}</b>${r.was != null && r.was > r.price ? `<s>${esc(money(r.was, r.currency || 'USD'))}</s>` : ''}<small>${esc(asOf(r.observed_at, now))}</small>
+<a class="mk-afford" href="https://openvibe.finance/ahead?cost=${encodeURIComponent(r.price.toFixed(2))}">Can I afford it?</a>` : '<small>price not stated</small>'}</span></li>`;
+    const found = deals.ok ? (deals.results.length
+        ? `<p class="mk-count">${deals.total} deal${deals.total === 1 ? '' : 's'} on OpenVibe Deals${deals.total > deals.results.length ? `, the newest ${deals.results.length} here (<a href="https://openvibe.deals/search?q=${encodeURIComponent(q)}">all of them</a>)` : ''}</p><ul class="mk-cards">${deals.results.map(card).join('')}</ul>`
+        : '<p class="mk-empty">No deal on OpenVibe Deals matches these words yet. The marketplaces below search their own listings.</p>')
+        : `<p class="mk-empty">${esc(deals.error || 'Deals could not be searched just now.')} The marketplaces below still work.</p>`;
+    return page({
+        title: `${q}: every marketplace`, path: `/search?q=${encodeURIComponent(q)}`, robots: 'noindex, follow', body: `
+<header class="mk-head">${searchForm(q)}</header>
+<section class="mk-sec" aria-labelledby="mk-deals-h"><h2 id="mk-deals-h">Deals</h2>${found}</section>
+<section class="mk-sec" aria-labelledby="mk-else-h"><h2 id="mk-else-h">Search it on</h2>
+<ul class="mk-elsewhere">${links.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(l.name)}</b><small>${esc(l.kind)}</small></a></li>`).join('')}</ul>
+<p class="mk-note">These open each marketplace's own search with your words in it. Markets does not fetch from them or know what you do there; as a permitted feed comes for one, its listings join the results above.</p></section>` });
+}
+
+module.exports = { page, home, results, esc, money, asOf };

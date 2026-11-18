@@ -1,0 +1,23 @@
+[Unit]
+Description=OpenVibe.Markets
+After=network.target
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/openvibe.markets
+EnvironmentFile=/etc/openvibe/markets.env
+Environment=NODE_ENV=production
+Environment=PORT=5294
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/env node /opt/openvibe.markets/server/index.js
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=15
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,49 @@
+/* OpenVibe.Markets: theme tokens only (kit.css defines them for both themes), phone first, 44 px targets. */
+.mk { max-width: 920px; }
+.mk h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem); letter-spacing: -0.02em; text-wrap: balance; }
+.mk h2 { margin: 0 0 10px; font-size: 1.1rem; }
+.mk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.mk-hero { padding: 12px 0 8px; }
+.mk-lede { max-width: 62ch; margin: 0 0 16px; color: var(--text-secondary, #9aa4b2); font-size: 1.05rem; line-height: 1.55; }
+.mk-sec { margin: 22px 0 0; }
+.mk-head { margin: 4px 0 6px; }
+.mk-search { display: flex; gap: 8px; align-items: stretch; }
+.mk-search-box { position: relative; flex: 1 1 auto; min-width: 0; display: flex; }
+.mk-search-box input { flex: 1; min-width: 0; min-height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--border, #1f2937);
+    background: var(--surface, transparent); color: var(--text, #e8ecf3); font: inherit; font-size: 16px; }
+.mk-search-box input:focus-visible { outline: 2px solid var(--accent, #5b8cff); outline-offset: 2px; }
+.mk-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 20px; border-radius: 14px; border: 1px solid var(--border, #1f2937);
+    background: var(--surface, transparent); color: var(--text, #e8ecf3); font: inherit; font-weight: 600; cursor: pointer; transition: transform .12s ease; }
+.mk-btn--primary { background: var(--accent, #5b8cff); border-color: transparent; color: var(--accent-contrast, #fff); }
+.mk-btn:active { transform: scale(.97); }
+.mk-places { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-places li { display: grid; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border, #1f2937); }
+.mk-places small, .mk-elsewhere small { color: var(--text-secondary, #9aa4b2); font-size: 12px; }
+.mk-promises { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 10px; max-width: 64ch; }
+.mk-promises li { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border, #1f2937); line-height: 1.5; }
+.mk-count, .mk-note, .mk-empty { color: var(--text-secondary, #9aa4b2); line-height: 1.5; }
+.mk-cards { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.mk-card { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 14px;
+    border: 1px solid var(--border, #1f2937); animation: mk-in .3s ease both; }
+html[data-ov-motion="off"] .mk-card { animation: none; }
+@keyframes mk-in { from { opacity: 0; transform: translateY(calc(6px * var(--ov-move, 1))); } to { opacity: 1; transform: none; } }
+.mk-card-img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: var(--surface-2, rgba(127, 127, 127, .12)); }
+.mk-card-body { display: grid; gap: 4px; min-width: 0; }
+.mk-card-title { color: inherit; font-weight: 600; text-decoration: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mk-card-title:hover { text-decoration: underline; }
+.mk-card-body small { color: var(--text-secondary, #9aa4b2); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-card-price { display: grid; justify-items: end; gap: 2px; text-align: right; font-variant-numeric: tabular-nums; }
+.mk-card-price b { font-size: 1.05rem; }
+.mk-card-price s, .mk-card-price small { color: var(--text-secondary, #9aa4b2); font-size: 12px; }
+.mk-afford { font-size: 12px; color: var(--accent, #5b8cff); }
+.mk-elsewhere { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); }
+.mk-elsewhere a { display: grid; gap: 2px; min-height: 56px; align-content: center; padding: 8px 14px; border-radius: 14px; border: 1px solid var(--border, #1f2937);
+    color: inherit; text-decoration: none; transition: border-color .12s ease, transform .12s ease; }
+.mk-elsewhere a:hover { border-color: var(--accent, #5b8cff); }
+.mk-elsewhere a:active { transform: scale(.98); }
+html[data-ov-motion="off"] .mk-elsewhere a, html[data-ov-motion="off"] .mk-btn { transition: none; }
+@media (max-width: 520px) {
+    .mk-card { grid-template-columns: 56px minmax(0, 1fr); }
+    .mk-card-img { width: 56px; height: 56px; }
+    .mk-card-price { grid-column: 2; justify-items: start; text-align: left; grid-auto-flow: column; justify-content: start; align-items: baseline; gap: 8px; }
+}
