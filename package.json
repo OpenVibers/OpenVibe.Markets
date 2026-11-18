@@ -1,8 +1,8 @@
 {
   "name": "openvibe-markets",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "openvibe.markets: every marketplace, one search (plan §L.1). The surface over OpenVibe Deals, with the marketplaces opened with the search filled in.",
+  "description": "openvibe.markets: every marketplace, one search (plan \u00a7L.1). The surface over OpenVibe Deals, with the marketplaces opened with the search filled in.",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",

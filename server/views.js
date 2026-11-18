@@ -44,7 +44,7 @@ function page({ title, body, path = '/', description = 'Every marketplace, one s
         name: 'OpenVibe.Markets', siteName: 'OpenVibe.Markets', title, description, canonical: `${SITE}${path}`, robots,
         navbar: { service: 'markets', apiBase: 'https://openvibe.network', links: [{ label: 'Search', href: '/' }, { label: 'Deals', href: 'https://openvibe.deals/' }] },
         footer: { service: 'markets', variant: 'full', mount: '#ov-footer' },
-        head: `<link rel="stylesheet" href="${serve.url('kit.css')}"><link rel="stylesheet" href="${asset('markets.css')}">`,
+        head: `<link rel="stylesheet" href="${serve.url('kit.css')}"><link rel="stylesheet" href="${asset('markets.css')}"><script src="${asset('markets.js')}" defer></script>`,
         body: `<div id="navbar-mount"></div><main id="main" class="ovk-page mk">${body}</main>`,
     });
 }
@@ -53,21 +53,27 @@ const searchForm = (q = '') => `<form class="mk-search" method="get" action="/se
 <label class="mk-search-box"><span class="mk-sr">What are you looking for?</span><input type="search" name="q" value="${esc(q)}" placeholder="Headphones, a sofa, a used road bike…" maxlength="100" autocomplete="off" required data-ov-trending="own"></label>
 <button class="mk-btn mk-btn--primary" type="submit">Search</button></form>`;
 
-function home() {
+/** Search by photo (v0.2): the photo is shrunk in the browser and sent once for OpenVibe Vision to name. */
+const photoForm = () => `<form class="mk-photo" method="post" action="/photo">
+<input type="hidden" name="image" value="" data-mk-image>
+<label class="mk-btn mk-photo-btn"><input type="file" accept="image/*" capture="environment" data-mk-photo class="mk-sr"><span>Search by photo</span></label>
+<span class="mk-photo-said" role="status" data-mk-photo-said>A photo of the thing itself works best.</span></form>`;
+
+function home({ photo = false, error = null } = {}) {
     return page({
         title: 'Every marketplace, one search', body: `
 <section class="mk-hero"><h1>Every marketplace, one search</h1>
 <p class="mk-lede">New, used, refurbished and local. Deals the community found, with every price shown as of when it was seen, and the big marketplaces one tap away with your search already in.</p>
-${searchForm()}</section>
+${error ? `<p class="mk-error" role="alert">${esc(error)}</p>` : ''}${searchForm()}${photo ? photoForm() : ''}</section>
 <section class="mk-sec"><h2>Where it looks</h2><ul class="mk-places">${PLACES.map((p) => `<li><b>${esc(p.name)}</b><small>${esc(p.kind)}</small></li>`).join('')}</ul></section>
 <ul class="mk-promises">
 <li><b>Neutral.</b> A commission never raises a result. Every result says where it is from and when its price was seen.</li>
 <li><b>A price is an observation.</b> It is shown as of its time, never as "now".</li>
-<li><b>Nothing about you.</b> Searching needs no account, and your words are not kept.</li>
+<li><b>Nothing about you.</b> Searching needs no account, and your words are not kept. A photo is sent once to OpenVibe Vision to name what it shows; neither keeps the photo.</li>
 </ul>` });
 }
 
-function results({ q, deals, links, now = Date.now() }) {
+function results({ q, deals, links, now = Date.now(), fromPhoto = false }) {
     // A deal without a picture takes the whole width: no empty square.
     const card = (r) => `<li class="mk-card${r.image ? '' : ' mk-card--text'}">${r.image ? `<img class="mk-card-img" src="${esc(r.image)}" alt="" loading="lazy" width="72" height="72">` : ''}
 <span class="mk-card-body"><a class="mk-card-title" href="${esc(r.url)}">${esc(r.title)}</a>
@@ -80,7 +86,7 @@ function results({ q, deals, links, now = Date.now() }) {
         : `<p class="mk-empty">${esc(deals.error || 'Deals could not be searched just now.')} The marketplaces below still work.</p>`;
     return page({
         title: `${q}: every marketplace`, path: `/search?q=${encodeURIComponent(q)}`, robots: 'noindex, follow', body: `
-<header class="mk-head">${searchForm(q)}</header>
+<header class="mk-head">${searchForm(q)}${fromPhoto ? `<p class="mk-from-photo">From your photo: <b>${esc(q)}</b>. Not quite it? Change the words above.</p>` : ''}</header>
 <section class="mk-sec" aria-labelledby="mk-deals-h"><h2 id="mk-deals-h">Deals</h2>${found}</section>
 <section class="mk-sec" aria-labelledby="mk-else-h"><h2 id="mk-else-h">Search it on</h2>
 <ul class="mk-elsewhere">${links.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(l.name)}</b><small>${esc(l.kind)}</small></a></li>`).join('')}</ul>
