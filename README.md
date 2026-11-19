@@ -39,5 +39,5 @@ Production: `/opt/openvibe.markets`, unit `openvibe-markets.service`, env `/etc/
 License: AGPL-3.0-only.
 
 <!-- versions:start -->
-- openvibe-shared: v4.323.0
+- openvibe-shared: v4.325.0
 <!-- versions:end -->
