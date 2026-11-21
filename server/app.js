@@ -47,7 +47,11 @@ function createApp({ deals, vision = null, now = () => Date.now(), photoLimits =
     });
     app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'markets' }));
     app.get('/api/ready', (_req, res) => res.json({ status: 'ok', service: 'markets' }));
-    app.get('/robots.txt', (_req, res) => res.type('text').send('User-agent: *\nAllow: /$\nDisallow: /search\nDisallow: /api/\n'));
+    // Every page crawlable, by every bot, AI included (the owner, 2026-11-21: "Everything should be just crawlable"); a search
+    // here reads OpenVibe Deals only, so it is no cost to open. The site had no sitemap.
+    const seo = require('openvibe-shared/seo');
+    app.get('/robots.txt', (_req, res) => res.type('text').set('Cache-Control', 'public, max-age=3600').send(seo.robotsTxt({ disallow: ['/auth/'], sitemaps: ['https://openvibe.markets/sitemap.xml'] })));
+    app.get('/sitemap.xml', (_req, res) => res.type('application/xml').set('Cache-Control', 'public, max-age=3600').send(seo.sitemapXml([{ loc: 'https://openvibe.markets/', changefreq: 'daily', priority: 1.0 }])));
     app.get('/llms.txt', (_req, res) => res.type('text').send([
         '# OpenVibe.Markets', '', '> Every marketplace, one search: OpenVibe Deals\' offers (each price as of its time) and the big marketplaces opened with the search filled in.', '',
         '- Search: https://openvibe.markets/search?q=<words>', '- API: GET https://openvibe.markets/api/v1/search?q=<words> → { q, deals: { ok, total, results }, elsewhere: [{ name, kind, url }] }', '',

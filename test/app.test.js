@@ -90,8 +90,10 @@ const OFFERS = [
         assert.strictEqual(j.elsewhere.length, PLACES.length);
         assert.strictEqual((await get('/api/v1/search')).status, 422);
 
+        // 2026-11-21: every page crawlable (a search page stays noindex, follow); a sitemap for the home.
         r = await get('/robots.txt');
-        assert.match(r.text, /Disallow: \/search/);
+        assert.ok(!/Disallow: \/search/.test(r.text) && /Sitemap: https:\/\/openvibe\.markets\/sitemap\.xml/.test(r.text), r.text);
+        assert.match((await get('/sitemap.xml')).text, /<loc>https:\/\/openvibe\.markets\/<\/loc>/);
         assert.match((await get('/llms.txt')).text, /OpenVibe\.Markets/);
         assert.strictEqual((await get('/nope')).status, 404);
 
